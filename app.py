@@ -43,7 +43,7 @@ async def on_chat_start():
     files = None
     while files is None:
         files = await cl.AskFileMessage(
-            content="¡Bienvenido a **DataBrain IA**! 🧠\nPor favor, sube uno o más archivos **PDF** para comenzar el análisis interactivo.",
+            content="### Descubre chat_bot_Mario, tu asistente de IA personal\nPor favor, sube uno o más archivos **PDF** para comenzar el análisis interactivo.",
             accept=["application/pdf"],
             max_size_mb=50,
             timeout=300,
