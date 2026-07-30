@@ -6,5 +6,6 @@ langchain-classic
 langchain-text-splitters
 google-generativeai
 PyPDF2
+fastembed
 faiss-cpu
 python-dotenv
