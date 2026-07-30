@@ -53,7 +53,7 @@ def get_conversational_chain():
     Respuesta:
     """
     
-    model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3)
+    model = ChatGoogleGenerativeAI(model="gemini-flash-latest", temperature=0.3)
     prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
     
@@ -80,9 +80,63 @@ def user_input(user_question):
     st.write("🤖 **Respuesta:**", response["output_text"])
 
 def main():
-    st.set_page_config(page_title="Chat con PDFs", page_icon="📄")
-    st.header("Chatbot para leer y responder preguntas de PDFs 📄🤖")
+    st.set_page_config(page_title="AI Core Matrix", page_icon="💻", layout="wide")
     
+    # CSS Futurista (Neon, Dark Mode, Matrix Style)
+    st.markdown("""
+    <style>
+    .stApp {
+        background-color: #050505;
+        background-image: radial-gradient(circle at center, #0a1c10 0%, #050505 100%);
+        color: #00ff41;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    h1 {
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41;
+        color: #00ff41 !important;
+        padding-bottom: 20px;
+    }
+    /* Estilos de botones */
+    div.stButton > button {
+        background-color: transparent !important;
+        color: #00ff41 !important;
+        border: 2px solid #00ff41 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 0 10px #00ff41 inset, 0 0 10px #00ff41 !important;
+        text-transform: uppercase;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    div.stButton > button:hover {
+        background-color: #00ff41 !important;
+        color: black !important;
+        box-shadow: 0 0 20px #00ff41 inset, 0 0 30px #00ff41 !important;
+    }
+    /* Estilos del input */
+    .stTextInput>div>div>input {
+        background-color: #111 !important;
+        color: #00ff41 !important;
+        border: 1px solid #00ff41 !important;
+        box-shadow: 0 0 5px #00ff41 !important;
+    }
+    /* Estilos del sidebar */
+    section[data-testid="stSidebar"] {
+        background-color: #0a0a0a !important;
+        border-right: 1px solid #00ff41;
+        box-shadow: 2px 0 15px rgba(0,255,65,0.2);
+    }
+    /* Color de textos secundarios */
+    .stMarkdown, p, div, span {
+        color: #00ff41 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.header("⚡ SISTEMA DE ANÁLISIS IA - PDF MATRIX ⚡")
+
     if not api_key:
         st.warning("⚠️ No se ha detectado la GOOGLE_API_KEY. Por favor, asegúrate de configurarla en tu archivo .env o en las variables de entorno.")
 
