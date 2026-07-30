@@ -50,40 +50,41 @@ async def on_chat_start():
             max_files=10
         ).send()
 
-    msg = cl.Message(content=f"⏳ Procesando {len(files)} archivo(s)...")
-    await msg.send()
+    # Step container for visual loading
+    async with cl.Step(name="Procesando Documentos (Chat_bot_Mario)") as step:
+        # Paso 1: Extraer texto
+        step.output = "Extrayendo texto de los PDFs...\n[██░░░░░░░░] 20%"
+        await step.update()
+        
+        text = ""
+        for file in files:
+            pdf_reader = PdfReader(file.path)
+            for page in pdf_reader.pages:
+                text += page.extract_text() or ""
 
-    # Paso 1: Extraer texto
-    text = ""
-    for file in files:
-        pdf_reader = PdfReader(file.path)
-        for page in pdf_reader.pages:
-            text += page.extract_text() or ""
+        if not text.strip():
+            step.output = "❌ Error: No se pudo extraer texto de los PDFs."
+            await step.update()
+            return
 
-    if not text.strip():
-        msg.content = "❌ No se pudo extraer texto de los PDFs. Podrían estar escaneados o protegidos."
-        await msg.update()
-        return
+        # Paso 2: Fragmentar
+        step.output = "Dividiendo y estructurando el contenido...\n[██████░░░░] 60%"
+        await step.update()
+        
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
+        text_chunks = text_splitter.split_text(text)
 
-    # Paso 2: Fragmentar
-    msg.content = "⏳ Dividiendo y estructurando el contenido..."
-    await msg.update()
-    
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
-    text_chunks = text_splitter.split_text(text)
+        # Paso 3: Vectorizar localmente con FastEmbed
+        step.output = "Generando base de datos vectorial (FastEmbed)...\n[██████████] 100%"
+        await step.update()
 
-    # Paso 3: Vectorizar localmente con FastEmbed
-    msg.content = "⏳ Generando base de datos vectorial (Modelos Locales de Alta Velocidad)..."
-    await msg.update()
-
-    embeddings = FastEmbedEmbeddings()
-    vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
-    
-    # Guardar la base de datos en la sesión del usuario
-    cl.user_session.set("vector_store", vector_store)
-
-    msg.content = "✅ **¡Documentos procesados con éxito!** Ya puedes hacerme preguntas sobre su contenido."
-    await msg.update()
+        embeddings = FastEmbedEmbeddings()
+        vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
+        
+        # Guardar la base de datos en la sesión del usuario
+        cl.user_session.set("vector_store", vector_store)
+        step.output = "✅ ¡Análisis completado!"
+        await step.update()
 
 @cl.on_message
 async def on_message(message: cl.Message):
@@ -96,13 +97,15 @@ async def on_message(message: cl.Message):
     docs = vector_store.similarity_search(message.content)
     chain = get_conversational_chain()
     
-    # Mensaje temporal de "Pensando..."
-    res_msg = cl.Message(content="")
-    await res_msg.send()
-
-    # Obtener respuesta
-    res = chain.invoke({"input_documents": docs, "question": message.content})
+    # Mostrar un Step visual mientras "piensa"
+    async with cl.Step(name="Analizando respuesta...") as step:
+        step.output = "Buscando en los documentos y generando respuesta..."
+        await step.update()
+        
+        res = chain.invoke({"input_documents": docs, "question": message.content})
+        step.output = "✅ Respuesta generada."
+        await step.update()
     
     # Actualizar el mensaje con la respuesta final
-    res_msg.content = res["output_text"]
-    await res_msg.update()
+    res_msg = cl.Message(content=res["output_text"])
+    await res_msg.send()
