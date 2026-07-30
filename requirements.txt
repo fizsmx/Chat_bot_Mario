@@ -2,6 +2,7 @@ streamlit
 langchain
 langchain-google-genai
 langchain-community
+langchain-classic
 langchain-text-splitters
 google-generativeai
 PyPDF2
