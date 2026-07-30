@@ -1,0 +1,14 @@
+/* Hide the Readme button */
+a[href="/readme"], 
+button[title="Readme"], 
+[aria-label="Readme"],
+.readme-btn {
+    display: none !important;
+}
+
+/* Force inject chat_bot_Mario logo text into header if empty */
+.header-title::before {
+    content: "chat_bot_Mario";
+    font-weight: bold;
+    font-size: 1.2rem;
+}
